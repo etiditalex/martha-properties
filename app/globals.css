@@ -1,0 +1,76 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --martha-black: #1a1a1a;
+  --martha-charcoal: #2d2d2d;
+  --martha-warm: #b8860b;
+  --martha-cream: #f8f6f3;
+  --martha-sand: #e8e4df;
+}
+
+/* Prevent horizontal scroll & iOS font inflation */
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  @apply bg-martha-cream text-martha-black;
+}
+
+/* Vertical rhythm + horizontal padding (safe-area aware, works from ~320px wide) */
+.section-padding {
+  @apply py-14 sm:py-16 md:py-20 lg:py-24;
+  padding-left: max(1rem, env(safe-area-inset-left, 0px));
+  padding-right: max(1rem, env(safe-area-inset-right, 0px));
+}
+
+@media (min-width: 640px) {
+  .section-padding {
+    padding-left: max(1.25rem, env(safe-area-inset-left, 0px));
+    padding-right: max(1.25rem, env(safe-area-inset-right, 0px));
+  }
+}
+
+@media (min-width: 768px) {
+  .section-padding {
+    padding-left: max(2rem, env(safe-area-inset-left, 0px));
+    padding-right: max(2rem, env(safe-area-inset-right, 0px));
+  }
+}
+
+@media (min-width: 1024px) {
+  .section-padding {
+    padding-left: max(3rem, env(safe-area-inset-left, 0px));
+    padding-right: max(3rem, env(safe-area-inset-right, 0px));
+  }
+}
+
+.prose-martha p {
+  @apply text-martha-charcoal/90 leading-relaxed;
+}
+
+/* About page hero — typewriter caret */
+@keyframes about-cursor-blink {
+  0%,
+  45% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+
+.animate-about-cursor {
+  animation: about-cursor-blink 1s step-end infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-about-cursor {
+    animation: none;
+    opacity: 1;
+  }
+}
