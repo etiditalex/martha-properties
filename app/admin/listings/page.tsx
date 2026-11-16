@@ -32,7 +32,11 @@ export default function AdminListingsPage() {
       return;
     }
     const supabase = createClient();
-    const { data } = await supabase.from("listings").select("*").order("id", { ascending: true });
+    const { data } = await supabase
+      .from("listings")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .order("id", { ascending: false });
     setListings((data as ListingRow[]) || []);
     setLoading(false);
   };

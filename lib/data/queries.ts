@@ -17,7 +17,8 @@ export async function getPublishedListings(): Promise<{
     .from("listings")
     .select("*")
     .eq("published", true)
-    .order("id", { ascending: true });
+    .order("created_at", { ascending: false })
+    .order("id", { ascending: false });
 
   if (error || !data?.length) return { source: "catalog", listings: LAND_LISTINGS };
   return { source: "database", listings: (data as ListingRow[]).map(mapListing) };
