@@ -14,10 +14,11 @@ import {
   Eye,
   Quote,
 } from "lucide-react";
-import { LAND_LISTINGS } from "@/lib/listings";
+import { useLiveListings } from "@/lib/useLiveListings";
 import { GoogleReviewsSection } from "@/components/GoogleReviewsSection";
 
 export default function HomePage() {
+  const listings = useLiveListings();
   return (
     <>
       <section className="relative min-h-[72vh] sm:min-h-[80vh] md:min-h-[85vh] flex items-center justify-center overflow-hidden">
@@ -75,7 +76,7 @@ export default function HomePage() {
           </motion.div>
 
           <div className="mt-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
-            {LAND_LISTINGS.map((listing, i) => (
+            {listings.map((listing, i) => (
               <Link
                 key={listing.id}
                 href={`/for-sale/${listing.slug}`}

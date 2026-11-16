@@ -16,6 +16,12 @@ const config: Config = {
           cream: "#f8f6f3",
           sand: "#e8e4df",
         },
+        /* Admin shell tokens — same layout roles as a console sidebar, Martha colours */
+        primary: "#1a1a1a",
+        accent: {
+          DEFAULT: "#b8860b",
+          blend: "#f3e6c4",
+        },
       },
       fontFamily: {
         sans: ["var(--font-geist-sans)", "system-ui", "sans-serif"],

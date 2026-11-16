@@ -3,9 +3,7 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Calendar, ArrowRight, BookOpen } from "lucide-react";
-import { BLOG_POSTS } from "@/lib/blog-posts";
-
-const posts = BLOG_POSTS;
+import { useLiveBlogs } from "@/lib/useLiveBlogs";
 
 function formatDate(iso: string) {
   try {
@@ -20,6 +18,7 @@ function formatDate(iso: string) {
 }
 
 export default function BlogsPage() {
+  const { posts } = useLiveBlogs();
   return (
     <div className="section-padding">
       <div className="mx-auto max-w-7xl">

@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import { Phone, Globe, Send } from "lucide-react";
 import { getLandListingBySlug } from "@/lib/listings";
+import { DEFAULT_CONTACT, type SiteContact } from "@/lib/site";
 
 function ContactFormInner() {
   const searchParams = useSearchParams();
@@ -14,19 +15,72 @@ function ContactFormInner() {
     : undefined;
 
   const [sent, setSent] = useState(false);
+  const [error, setError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState("");
+  const [contact, setContact] = useState<SiteContact>(DEFAULT_CONTACT);
+
+  useEffect(() => {
+    fetch("/api/settings")
+      .then((response) => response.json())
+      .then((data: SiteContact) => {
+        if (data?.phone) setContact((current) => ({ ...current, ...data }));
+      })
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     if (listing) {
       setMessage(
         `I'm interested in ${listing.title} (${listing.location}). Please share next steps.`
       );
+      return;
     }
+    if (!propertySlug) return;
+    let cancelled = false;
+    fetch("/api/listings")
+      .then((response) => response.json())
+      .then((data: { listings?: { slug: string; title: string; location: string }[] }) => {
+        const match = data.listings?.find((item) => item.slug === propertySlug);
+        if (!cancelled && match) {
+          setMessage(
+            `I'm interested in ${match.title} (${match.location}). Please share next steps.`
+          );
+        }
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
   }, [propertySlug, listing]);
 
-  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    setSent(true);
+    setError("");
+    setSubmitting(true);
+    const form = new FormData(e.currentTarget);
+    try {
+      const response = await fetch("/api/inquiries", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: form.get("name"),
+          email: form.get("email"),
+          phone: form.get("phone"),
+          message,
+          listingSlug: propertySlug,
+        }),
+      });
+      if (!response.ok) {
+        setError("We couldn’t send that just now. Please call us instead.");
+        return;
+      }
+      setSent(true);
+    } catch {
+      setError("We couldn’t send that just now. Please call us instead.");
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   return (
@@ -63,18 +117,18 @@ function ContactFormInner() {
             <ul className="space-y-5">
               <li>
                 <a
-                  href="tel:+254732868220"
+                  href={contact.phoneHref}
                   className="flex items-center gap-3 text-martha-charcoal hover:text-martha-warm transition-colors"
                 >
                   <span className="flex h-10 w-10 items-center justify-center rounded bg-martha-sand">
                     <Phone size={18} />
                   </span>
-                  +254 732 868220
+                  {contact.phone}
                 </a>
               </li>
               <li>
                 <a
-                  href="https://www.marthapropertiesco.ke"
+                  href={contact.website}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-3 text-martha-charcoal hover:text-martha-warm transition-colors"
@@ -82,7 +136,7 @@ function ContactFormInner() {
                   <span className="flex h-10 w-10 items-center justify-center rounded bg-martha-sand">
                     <Globe size={18} />
                   </span>
-                  www.marthapropertiesco.ke
+                  {contact.websiteLabel}
                 </a>
               </li>
             </ul>
@@ -174,11 +228,13 @@ function ContactFormInner() {
                     placeholder="How can we help?"
                   />
                 </div>
+                {error && <p className="text-sm text-red-700">{error}</p>}
                 <button
                   type="submit"
-                  className="inline-flex items-center justify-center gap-2 min-h-[44px] px-5 py-3 bg-martha-black text-martha-cream font-medium rounded-lg hover:bg-martha-charcoal transition-colors touch-manipulation w-full sm:w-auto"
+                  disabled={submitting}
+                  className="inline-flex items-center justify-center gap-2 min-h-[44px] px-5 py-3 bg-martha-black text-martha-cream font-medium rounded-lg hover:bg-martha-charcoal transition-colors touch-manipulation w-full sm:w-auto disabled:opacity-60"
                 >
-                  <Send size={18} /> Send message
+                  <Send size={18} /> {submitting ? "Sending…" : "Send message"}
                 </button>
               </form>
             )}

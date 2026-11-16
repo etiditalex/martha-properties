@@ -5,8 +5,9 @@ import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { ArrowRight, ChevronDown, MapPin, Search } from "lucide-react";
-import { RECENT_BLOG_POSTS } from "@/lib/blog-posts";
-import { LAND_LISTINGS, type LandListing } from "@/lib/listings";
+import { type LandListing } from "@/lib/listings";
+import { useLiveBlogs } from "@/lib/useLiveBlogs";
+import { useLiveListings } from "@/lib/useLiveListings";
 
 type SearchFilters = {
   location: string;
@@ -75,27 +76,27 @@ function filterListings(
 }
 
 export default function ForSalePage() {
+  const listings = useLiveListings();
+  const { recent: recentPosts } = useLiveBlogs();
   const locationOptions = useMemo(
-    () =>
-      Array.from(new Set(LAND_LISTINGS.map((l) => l.location))).sort(),
-    []
+    () => Array.from(new Set(listings.map((l) => l.location))).sort(),
+    [listings]
   );
   const plotSizeOptions = useMemo(
-    () =>
-      Array.from(new Set(LAND_LISTINGS.map((l) => l.plotSize))).sort(),
-    []
+    () => Array.from(new Set(listings.map((l) => l.plotSize))).sort(),
+    [listings]
   );
   const propertyTypes = useMemo(
-    () => Array.from(new Set(LAND_LISTINGS.map((l) => l.type))).sort(),
-    []
+    () => Array.from(new Set(listings.map((l) => l.type))).sort(),
+    [listings]
   );
 
   const [draft, setDraft] = useState<SearchFilters>(defaultFilters);
   const [applied, setApplied] = useState<SearchFilters>(defaultFilters);
 
   const filtered = useMemo(
-    () => filterListings(LAND_LISTINGS, applied),
-    [applied]
+    () => filterListings(listings, applied),
+    [listings, applied]
   );
 
   function handleSearch(e: React.FormEvent) {
@@ -339,7 +340,7 @@ export default function ForSalePage() {
                 <div className="py-6">
                   <h2 className="sr-only">Property listings</h2>
                   <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:gap-8 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-4">
-                    {LAND_LISTINGS.map((listing, i) => (
+                    {listings.map((listing, i) => (
                         <Link
                           key={listing.id}
                           href={`/for-sale/${listing.slug}`}
@@ -424,7 +425,7 @@ export default function ForSalePage() {
                   </Link>
                 </div>
                 <ul className="space-y-4">
-                  {RECENT_BLOG_POSTS.slice(0, 3).map((post) => (
+                  {recentPosts.slice(0, 3).map((post) => (
                     <li key={post.slug}>
                       <Link
                         href={`/blogs/${post.slug}`}
@@ -463,7 +464,7 @@ export default function ForSalePage() {
                   </Link>
                 </div>
                 <ul className="space-y-3">
-                  {LAND_LISTINGS.map((listing) => (
+                  {listings.map((listing) => (
                     <li key={listing.id}>
                       <Link
                         href={`/for-sale/${listing.slug}`}

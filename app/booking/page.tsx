@@ -10,10 +10,38 @@ const field =
 
 export default function BookingPage() {
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState("");
 
-  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    setSubmitted(true);
+    setError("");
+    setSubmitting(true);
+    const form = new FormData(e.currentTarget);
+    try {
+      const response = await fetch("/api/bookings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: form.get("name"),
+          email: form.get("email"),
+          phone: form.get("phone"),
+          preferredDate: form.get("preferred-date"),
+          preferredTime: form.get("preferred-time"),
+          propertyName: form.get("property"),
+          message: form.get("notes"),
+        }),
+      });
+      if (!response.ok) {
+        setError("We couldn’t send that just now. Please call us instead.");
+        return;
+      }
+      setSubmitted(true);
+    } catch {
+      setError("We couldn’t send that just now. Please call us instead.");
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   return (
@@ -146,11 +174,13 @@ export default function BookingPage() {
                 placeholder="Any specific requirements or questions"
               />
             </div>
+            {error && <p className="text-sm text-red-700">{error}</p>}
             <button
               type="submit"
-              className="w-full md:w-auto inline-flex items-center justify-center gap-2 min-h-[44px] px-6 py-3 bg-martha-black text-martha-cream font-medium rounded-lg hover:bg-martha-charcoal transition-colors touch-manipulation"
+              disabled={submitting}
+              className="w-full md:w-auto inline-flex items-center justify-center gap-2 min-h-[44px] px-6 py-3 bg-martha-black text-martha-cream font-medium rounded-lg hover:bg-martha-charcoal transition-colors touch-manipulation disabled:opacity-60"
             >
-              <Calendar size={18} /> Request viewing
+              <Calendar size={18} /> {submitting ? "Sending…" : "Request viewing"}
             </button>
           </motion.form>
         )}

@@ -2,10 +2,10 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { MapPin } from "lucide-react";
-import {
-  getLandListingBySlug,
-  LAND_LISTINGS,
-} from "@/lib/listings";
+import { getPublishedListingBySlug } from "@/lib/data/queries";
+import { LAND_LISTINGS } from "@/lib/listings";
+
+export const dynamic = "force-dynamic";
 
 export function generateStaticParams() {
   return LAND_LISTINGS.map((l) => ({ slug: l.slug }));
@@ -17,7 +17,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const listing = getLandListingBySlug(slug);
+  const listing = await getPublishedListingBySlug(slug);
   if (!listing) return { title: "Property | Martha Properties" };
   return {
     title: `${listing.title} | Martha Properties`,
@@ -31,7 +31,7 @@ export default async function LandListingPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const listing = getLandListingBySlug(slug);
+  const listing = await getPublishedListingBySlug(slug);
   if (!listing) notFound();
 
   return (

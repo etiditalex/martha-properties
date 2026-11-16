@@ -6,7 +6,7 @@ export type LandListing = {
   id: number;
   slug: string;
   title: string;
-  type: "Land";
+  type: string;
   location: string;
   /** Listing price in KES (for search / filters) */
   priceKes: number;
@@ -21,6 +21,7 @@ export type LandListing = {
   overview: string;
   /** Extra blocks for the detail page — edit headings & body when ready */
   additionalSections: { title: string; body: string }[];
+  status?: "available" | "reserved" | "sold";
 };
 
 export const LAND_LISTINGS: LandListing[] = [

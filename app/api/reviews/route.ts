@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { getPublishedReviews } from "@/lib/data/queries";
 import {
   FALLBACK_REVIEWS,
   type ReviewCard,
@@ -52,19 +53,35 @@ function buildPayloadFromGoogle(
   };
 }
 
+async function fallbackPayload(publicMapsUrl: string | null): Promise<ReviewsPayload> {
+  const curated = await getPublishedReviews();
+  if (curated?.length) {
+    const rating =
+      curated.reduce((sum, review) => sum + review.rating, 0) / curated.length;
+    return {
+      source: "fallback",
+      businessName: FALLBACK_REVIEWS.businessName,
+      rating,
+      totalReviews: curated.length,
+      reviews: curated,
+      googleMapsUrl: publicMapsUrl,
+    };
+  }
+
+  return {
+    ...FALLBACK_REVIEWS,
+    googleMapsUrl: publicMapsUrl ?? FALLBACK_REVIEWS.googleMapsUrl,
+  };
+}
+
 export async function GET() {
   const apiKey = process.env.GOOGLE_PLACES_API_KEY;
   const placeId = process.env.GOOGLE_PLACE_ID?.trim();
   const publicMapsUrl =
     process.env.NEXT_PUBLIC_GOOGLE_REVIEWS_URL?.trim() || null;
 
-  const fallbackPayload: ReviewsPayload = {
-    ...FALLBACK_REVIEWS,
-    googleMapsUrl: publicMapsUrl ?? FALLBACK_REVIEWS.googleMapsUrl,
-  };
-
   if (!apiKey || !placeId) {
-    return NextResponse.json(fallbackPayload);
+    return NextResponse.json(await fallbackPayload(publicMapsUrl));
   }
 
   const url = `https://places.googleapis.com/v1/places/${encodeURIComponent(placeId)}`;
@@ -83,19 +100,19 @@ export async function GET() {
     if (!res.ok) {
       const body = await res.text().catch(() => "");
       console.error("[reviews] Places API error", res.status, body);
-      return NextResponse.json(fallbackPayload);
+      return NextResponse.json(await fallbackPayload(publicMapsUrl));
     }
 
     const data = (await res.json()) as GooglePlaceResponse;
     const payload = buildPayloadFromGoogle(data, publicMapsUrl);
 
     if (payload.reviews.length === 0) {
-      return NextResponse.json(fallbackPayload);
+      return NextResponse.json(await fallbackPayload(publicMapsUrl));
     }
 
     return NextResponse.json(payload);
   } catch (e) {
     console.error("[reviews] fetch failed", e);
-    return NextResponse.json(fallbackPayload);
+    return NextResponse.json(await fallbackPayload(publicMapsUrl));
   }
 }
