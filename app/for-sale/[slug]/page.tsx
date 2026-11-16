@@ -1,7 +1,7 @@
-import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { MapPin } from "lucide-react";
+import ListingGallery from "@/components/ListingGallery";
 import { getPublishedListingBySlug } from "@/lib/data/queries";
 import { LAND_LISTINGS } from "@/lib/listings";
 
@@ -46,16 +46,10 @@ export default async function LandListingPage({
 
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-10 lg:gap-12 min-w-0">
           <div className="lg:col-span-3 space-y-8 min-w-0">
-            <div className="relative aspect-[16/10] rounded-lg overflow-hidden bg-martha-sand">
-              <Image
-                src={listing.image}
-                alt={listing.title}
-                fill
-                className="object-cover"
-                sizes="(max-width: 1024px) 100vw, 60vw"
-                priority
-              />
-            </div>
+            <ListingGallery
+              title={listing.title}
+              images={listing.images?.length ? listing.images : listing.image ? [listing.image] : []}
+            />
 
             <div>
               <div className="flex flex-wrap items-center gap-2 text-sm text-martha-warm">

@@ -11,6 +11,8 @@ export type LandListing = {
   /** Listing price in KES (for search / filters) */
   priceKes: number;
   image: string;
+  /** Extra photos, including the cover. The first item is the cover. */
+  images?: string[];
   /** e.g. "50 × 100 ft" */
   plotSize: string;
   price: string;

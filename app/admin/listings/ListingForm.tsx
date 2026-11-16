@@ -6,7 +6,7 @@ import { Plus, Save, Trash2 } from "lucide-react";
 import AdminShell from "@/components/admin/AdminShell";
 import AdminButton from "@/components/admin/AdminButton";
 import { AdminInput, AdminSelect, AdminTextarea, AdminToggle } from "@/components/admin/AdminForm";
-import ImageUpload from "@/components/admin/ImageUpload";
+import GalleryUpload from "@/components/admin/GalleryUpload";
 import { createClient, isSupabaseConfigured } from "@/lib/supabase/client";
 import type { ListingRow, ListingStatus } from "@/lib/supabase/types";
 import { adminPath } from "@/lib/admin/path";
@@ -19,6 +19,7 @@ const emptyListing: Partial<ListingRow> = {
   location: "",
   price_kes: 0,
   image: "",
+  gallery: [],
   plot_size: "",
   price: "",
   deposit: "",
@@ -47,7 +48,14 @@ export default function ListingForm({ listingId }: { listingId?: number }) {
     async function load() {
       const supabase = createClient();
       const { data } = await supabase.from("listings").select("*").eq("id", listingId).single();
-      if (data) setForm(data as ListingRow);
+      if (data) {
+        const row = data as ListingRow;
+        const gallery = Array.isArray(row.gallery) ? row.gallery.filter(Boolean).slice(0, 10) : [];
+        setForm({
+          ...row,
+          gallery: gallery.length ? gallery : row.image ? [row.image] : [],
+        });
+      }
     }
     load();
   }, [listingId]);
@@ -70,13 +78,15 @@ export default function ListingForm({ listingId }: { listingId?: number }) {
     }
     setSaving(true);
     const supabase = createClient();
+    const photos = (form.gallery || []).map((url) => url.trim()).filter(Boolean).slice(0, 10);
     const payload = {
       slug: slugify(form.slug || form.title || ""),
       title: form.title.trim(),
       type: form.type || "Land",
       location: form.location.trim(),
       price_kes: form.price_kes || parsePriceAmount(form.price) || 0,
-      image: form.image || "",
+      image: photos[0] || "",
+      gallery: photos,
       plot_size: form.plot_size || "",
       price: form.price || "",
       deposit: form.deposit || "",
@@ -181,11 +191,12 @@ export default function ListingForm({ listingId }: { listingId?: number }) {
             onChange={(e) => update("balance_terms", e.target.value)}
           />
         </div>
-        <ImageUpload
-          label="Cover image"
-          value={form.image || ""}
-          onChange={(url) => update("image", url)}
-          hint="Upload a photo from this device, or paste an existing image link. PNG, JPG, or WebP up to 10MB."
+        <GalleryUpload
+          value={form.gallery || []}
+          onChange={(urls) => {
+            update("gallery", urls);
+            update("image", urls[0] || "");
+          }}
         />
         <AdminTextarea
           label="Overview"

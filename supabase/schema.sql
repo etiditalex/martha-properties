@@ -28,6 +28,7 @@ CREATE TABLE IF NOT EXISTS listings (
   location TEXT NOT NULL,
   price_kes NUMERIC NOT NULL DEFAULT 0,
   image TEXT NOT NULL DEFAULT '',
+  gallery JSONB NOT NULL DEFAULT '[]',
   plot_size TEXT NOT NULL DEFAULT '',
   price TEXT NOT NULL DEFAULT '',
   deposit TEXT NOT NULL DEFAULT '',

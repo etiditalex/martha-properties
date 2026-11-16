@@ -18,6 +18,7 @@ export type ListingRow = {
   location: string;
   price_kes: number;
   image: string;
+  gallery: string[];
   plot_size: string;
   price: string;
   deposit: string;
