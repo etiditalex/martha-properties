@@ -236,3 +236,40 @@ VALUES (
   '{"phone":"+254 732 868220","phoneHref":"tel:+254732868220","website":"https://www.marthapropertiesco.ke","websiteLabel":"www.marthapropertiesco.ke","email":""}'::jsonb
 )
 ON CONFLICT (key) DO NOTHING;
+
+-- Listing photos uploaded from the admin dashboard
+INSERT INTO storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+VALUES (
+  'listing-images',
+  'listing-images',
+  true,
+  10485760,
+  ARRAY['image/jpeg', 'image/png', 'image/webp', 'image/gif']
+)
+ON CONFLICT (id) DO UPDATE SET
+  public = EXCLUDED.public,
+  file_size_limit = EXCLUDED.file_size_limit,
+  allowed_mime_types = EXCLUDED.allowed_mime_types;
+
+DROP POLICY IF EXISTS "Public read listing images" ON storage.objects;
+CREATE POLICY "Public read listing images"
+ON storage.objects FOR SELECT
+USING (bucket_id = 'listing-images');
+
+DROP POLICY IF EXISTS "Admin upload listing images" ON storage.objects;
+CREATE POLICY "Admin upload listing images"
+ON storage.objects FOR INSERT
+WITH CHECK (
+  bucket_id = 'listing-images'
+  AND auth.role() = 'authenticated'
+);
+
+DROP POLICY IF EXISTS "Admin update listing images" ON storage.objects;
+CREATE POLICY "Admin update listing images"
+ON storage.objects FOR UPDATE
+USING (bucket_id = 'listing-images' AND auth.role() = 'authenticated');
+
+DROP POLICY IF EXISTS "Admin delete listing images" ON storage.objects;
+CREATE POLICY "Admin delete listing images"
+ON storage.objects FOR DELETE
+USING (bucket_id = 'listing-images' AND auth.role() = 'authenticated');

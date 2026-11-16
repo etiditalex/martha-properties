@@ -6,6 +6,7 @@ import { Plus, Save, Trash2 } from "lucide-react";
 import AdminShell from "@/components/admin/AdminShell";
 import AdminButton from "@/components/admin/AdminButton";
 import { AdminInput, AdminSelect, AdminTextarea, AdminToggle } from "@/components/admin/AdminForm";
+import ImageUpload from "@/components/admin/ImageUpload";
 import { createClient, isSupabaseConfigured } from "@/lib/supabase/client";
 import type { ListingRow, ListingStatus } from "@/lib/supabase/types";
 import { adminPath } from "@/lib/admin/path";
@@ -180,11 +181,11 @@ export default function ListingForm({ listingId }: { listingId?: number }) {
             onChange={(e) => update("balance_terms", e.target.value)}
           />
         </div>
-        <AdminInput
-          label="Cover image URL"
+        <ImageUpload
+          label="Cover image"
           value={form.image || ""}
-          onChange={(e) => update("image", e.target.value)}
-          placeholder="https://res.cloudinary.com/..."
+          onChange={(url) => update("image", url)}
+          hint="Upload a photo from this device, or paste an existing image link. PNG, JPG, or WebP up to 10MB."
         />
         <AdminTextarea
           label="Overview"
