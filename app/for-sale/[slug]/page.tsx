@@ -1,9 +1,11 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { MapPin } from "lucide-react";
+import { JsonLd } from "@/components/JsonLd";
 import ListingGallery from "@/components/ListingGallery";
 import { getPublishedListingBySlug } from "@/lib/data/queries";
 import { LAND_LISTINGS } from "@/lib/listings";
+import { buildPageMetadata, listingJsonLd, metaDescription, shareImage } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
 
@@ -18,11 +20,22 @@ export async function generateMetadata({
 }) {
   const { slug } = await params;
   const listing = await getPublishedListingBySlug(slug);
-  if (!listing) return { title: "Property | Martha Properties" };
-  return {
-    title: `${listing.title} | Martha Properties`,
-    description: `${listing.plotSize} land in ${listing.location}. ${listing.price}. ${listing.balanceTerms}.`,
-  };
+  if (!listing) {
+    return buildPageMetadata({
+      title: "Property",
+      description: "This property listing is no longer available.",
+      path: `/for-sale/${slug}`,
+      index: false,
+    });
+  }
+  return buildPageMetadata({
+    title: listing.title,
+    description: metaDescription(
+      `${listing.title} is ${listing.type.toLowerCase()} for sale in ${listing.location}. Plot ${listing.plotSize}. Price ${listing.price}. Deposit ${listing.deposit}. ${listing.balanceTerms}.`
+    ),
+    path: `/for-sale/${listing.slug}`,
+    image: shareImage(listing.image, listing.title),
+  });
 }
 
 export default async function LandListingPage({
@@ -36,6 +49,7 @@ export default async function LandListingPage({
 
   return (
     <div className="section-padding">
+      <JsonLd data={listingJsonLd(listing)} />
       <div className="max-w-6xl mx-auto w-full min-w-0">
         <Link
           href="/for-sale"

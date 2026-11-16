@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Phone, Globe } from "lucide-react";
+import { LOGO_URL, SITE } from "@/lib/site";
 
 export function Footer() {
   return (
@@ -10,8 +11,8 @@ export function Footer() {
           <div>
             <Link href="/" className="inline-block">
               <Image
-                src="https://res.cloudinary.com/dyfnobo9r/image/upload/v1773632695/Realtor_Martha_Logo_Final.Black_n1rad7.png"
-                alt="Realtor Martha"
+                src={LOGO_URL}
+                alt="Martha Properties"
                 width={120}
                 height={38}
                 className="h-8 w-auto brightness-0 invert opacity-95"
@@ -41,13 +42,11 @@ export function Footer() {
               <Phone size={16} /> +254 732 868220
             </a>
             <a
-              href="https://www.marthapropertiesco.ke"
-              target="_blank"
-              rel="noopener noreferrer"
+              href={SITE.website}
               className="flex items-start gap-2 text-sm mt-2 hover:text-martha-warm transition-colors break-all min-w-0"
             >
               <Globe size={16} className="shrink-0 mt-0.5" aria-hidden />
-              <span>www.marthapropertiesco.ke</span>
+              <span>{SITE.websiteLabel}</span>
             </a>
           </div>
         </div>

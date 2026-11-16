@@ -7,8 +7,8 @@ export const SITE = {
   tagline: "Properties",
   phone: "+254 732 868220",
   phoneHref: "tel:+254732868220",
-  website: "https://www.marthapropertiesco.ke",
-  websiteLabel: "www.marthapropertiesco.ke",
+  website: "https://marthaproperties.co.ke",
+  websiteLabel: "marthaproperties.co.ke",
   logo: LOGO_URL,
 };
 

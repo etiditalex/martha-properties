@@ -6,8 +6,9 @@ import { isSupabaseServerConfigured } from "@/lib/supabase/env";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Martha Properties Console",
-  robots: { index: false, follow: false },
+  title: { absolute: "Martha Properties Console" },
+  alternates: { canonical: "/admin" },
+  robots: { index: false, follow: false, googleBot: { index: false, follow: false } },
 };
 
 export default function AdminRootLayout({ children }: { children: React.ReactNode }) {

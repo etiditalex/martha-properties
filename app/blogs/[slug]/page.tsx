@@ -1,8 +1,10 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Calendar, ArrowLeft } from "lucide-react";
+import { JsonLd } from "@/components/JsonLd";
 import { getPublishedBlogBySlug } from "@/lib/data/queries";
 import { BLOG_POSTS } from "@/lib/blog-posts";
+import { blogJsonLd, buildPageMetadata } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
 
@@ -17,11 +19,21 @@ export async function generateMetadata({
 }) {
   const { slug } = await params;
   const post = await getPublishedBlogBySlug(slug);
-  if (!post) return { title: "Blog | Martha Properties" };
-  return {
-    title: `${post.title} | Martha Properties`,
+  if (!post) {
+    return buildPageMetadata({
+      title: "Blog",
+      description: "This article is no longer available.",
+      path: `/blogs/${slug}`,
+      index: false,
+    });
+  }
+  return buildPageMetadata({
+    title: post.title,
     description: post.excerpt,
-  };
+    path: `/blogs/${post.slug}`,
+    type: "article",
+    publishedTime: post.date,
+  });
 }
 
 export default async function BlogPostPage({
@@ -35,6 +47,7 @@ export default async function BlogPostPage({
 
   return (
     <div className="section-padding">
+      <JsonLd data={blogJsonLd(post)} />
       <div className="max-w-2xl mx-auto">
         <Link
           href="/blogs"
