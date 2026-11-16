@@ -17,17 +17,16 @@ type AdminShellProps = {
 
 export default function AdminShell({ children, title, subtitle }: AdminShellProps) {
   const pathname = usePathname();
-  const { collapsed, mobileOpen, setMobileOpen } = useAdminShell();
+  const { collapsed, mobileOpen, setMobileOpen, configured } = useAdminShell();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [badges, setBadges] = useState({ inquiries: 0, bookings: 0 });
-  const configured = isSupabaseConfigured();
 
   useEffect(() => {
     setMobileOpen(false);
   }, [pathname, setMobileOpen]);
 
   useEffect(() => {
-    if (!configured) return;
+    if (!configured && !isSupabaseConfigured()) return;
     const supabase = createClient();
 
     async function load() {
@@ -88,9 +87,9 @@ export default function AdminShell({ children, title, subtitle }: AdminShellProp
       >
         {!configured ? (
           <div className="mb-4 rounded-xl border border-accent/40 bg-accent-blend px-4 py-3 text-sm text-primary">
-            Supabase is not connected yet. Add <span className="font-semibold">NEXT_PUBLIC_SUPABASE_URL</span> and{" "}
-            <span className="font-semibold">NEXT_PUBLIC_SUPABASE_ANON_KEY</span> to <span className="font-semibold">.env.local</span>,
-            run <span className="font-semibold">supabase/schema.sql</span> in the Supabase SQL editor, then restart the app.
+            Supabase is not connected on this deployment. In Vercel, set{" "}
+            <span className="font-semibold">NEXT_PUBLIC_SUPABASE_URL</span> and{" "}
+            <span className="font-semibold">NEXT_PUBLIC_SUPABASE_ANON_KEY</span> for Production, then redeploy.
           </div>
         ) : null}
         {children}

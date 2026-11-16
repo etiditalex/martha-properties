@@ -12,6 +12,7 @@ import {
 const STORAGE_KEY = "martha-admin-sidebar-collapsed";
 
 type AdminShellContextValue = {
+  configured: boolean;
   collapsed: boolean;
   mobileOpen: boolean;
   setCollapsed: (value: boolean) => void;
@@ -22,7 +23,13 @@ type AdminShellContextValue = {
 
 const AdminShellContext = createContext<AdminShellContextValue | null>(null);
 
-export function AdminShellProvider({ children }: { children: React.ReactNode }) {
+export function AdminShellProvider({
+  children,
+  configured,
+}: {
+  children: React.ReactNode;
+  configured: boolean;
+}) {
   const [collapsed, setCollapsedState] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [ready, setReady] = useState(false);
@@ -58,6 +65,7 @@ export function AdminShellProvider({ children }: { children: React.ReactNode }) 
 
   const value = useMemo(
     () => ({
+      configured,
       collapsed: ready ? collapsed : false,
       mobileOpen,
       setCollapsed,
@@ -65,7 +73,7 @@ export function AdminShellProvider({ children }: { children: React.ReactNode }) 
       setMobileOpen,
       toggleMobile,
     }),
-    [collapsed, mobileOpen, ready, setCollapsed, toggleCollapsed, toggleMobile]
+    [configured, collapsed, mobileOpen, ready, setCollapsed, toggleCollapsed, toggleMobile]
   );
 
   return <AdminShellContext.Provider value={value}>{children}</AdminShellContext.Provider>;

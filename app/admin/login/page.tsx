@@ -26,7 +26,7 @@ function LoginForm() {
     try {
       if (!isSupabaseConfigured()) {
         setError(
-          "Add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY to .env.local, then restart the app."
+          "Supabase is not available on this deployment. Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY in Vercel, then redeploy."
         );
         return;
       }

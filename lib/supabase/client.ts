@@ -5,10 +5,17 @@ type PublicSupabaseConfig = {
   anonKey: string;
 };
 
+declare global {
+  interface Window {
+    __MARTHA_SUPABASE__?: PublicSupabaseConfig;
+  }
+}
+
 function readBrowserConfig(): PublicSupabaseConfig {
+  const injected = typeof window !== "undefined" ? window.__MARTHA_SUPABASE__ : undefined;
   return {
-    url: (process.env.NEXT_PUBLIC_SUPABASE_URL || "").trim(),
-    anonKey: (process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "").trim(),
+    url: (injected?.url || process.env.NEXT_PUBLIC_SUPABASE_URL || "").trim(),
+    anonKey: (injected?.anonKey || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "").trim(),
   };
 }
 
